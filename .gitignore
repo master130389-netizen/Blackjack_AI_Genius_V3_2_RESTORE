@@ -1,0 +1,11 @@
+# Ignora cartelle di compilazione e build
+.buildozer/
+pycache/
+*.pyc
+*.pyo
+*.log
+venv/
+apk_builds/
+*.apk
+*.zip
+*.bak

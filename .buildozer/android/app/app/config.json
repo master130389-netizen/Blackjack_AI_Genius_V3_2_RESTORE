@@ -1,9 +1,0 @@
-{
-  "server_url": "",
-  "admob_app_id": "ca-app-pub-xxxxxxxx~yyyyyyyyyy",
-  "language": "it",
-  "premium": false,
-  "ad_banner_top": "ca-app-pub-xxxxx/banner_top",
-  "ad_banner_bottom": "ca-app-pub-xxxxx/banner_bottom",
-  "ad_interstitial_endgame": "ca-app-pub-xxxxx/interstitial_endgame"
-}
