@@ -1,0 +1,18 @@
+VOICE INTEGRATION (ITA)
+-----------------------
+Opzioni per ottenere voce Alexa-like "Ava":
+
+1) Android built-in TTS:
+   - Alcuni dispositivi Android offrono voci di alta qualità. Su molti dispositivi puoi selezionare Google 'WaveNet' voices or OEM voices from Settings -> Accessibility -> Text-to-speech.
+   - In Kivy (on Android), use pyjnius to call android.speech.tts.TextToSpeech and set Locale and voice name.
+
+2) Google Cloud Text-to-Speech (WaveNet):
+   - Produces high-quality natural voices (paid).
+   - Steps: create Google Cloud project, enable TTS API, create service account, call TTS API server-side or client-side to synthesize audio.
+   - We recommend server-side TTS for Premium users: generate short mp3 files and serve them via the server when a Premium suggestion is given.
+
+3) Pre-recorded voice files:
+   - Alternatively record a set of prompts for common suggestions (Stand, Hit, Double, Split) using a voice actor.
+   - Place files in app/tts_samples and play them on Premium suggestions.
+
+This package includes demo placeholders in /tts_samples.

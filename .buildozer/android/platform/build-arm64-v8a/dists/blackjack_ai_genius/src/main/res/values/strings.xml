@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Blackjack AI Genius</string>
+    <string name="private_version">e2f87aa2ed02c6f5385141378e7be3fbc67a4433</string>
+    <string name="presplash_color">#000000</string>
+    <string name="urlScheme">kivy</string>
+</resources>
