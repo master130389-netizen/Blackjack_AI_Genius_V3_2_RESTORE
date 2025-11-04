@@ -1,11 +1,14 @@
-# Ignora cartelle di compilazione e build
+# Ignora cartelle temporanee e di build
 .buildozer/
+bin/
+venv/
 pycache/
 *.pyc
 *.pyo
 *.log
-venv/
-apk_builds/
-*.apk
-*.zip
 *.bak
+*.spec.save*
+*.zip
+*.apk
+*.csv
+*.json
