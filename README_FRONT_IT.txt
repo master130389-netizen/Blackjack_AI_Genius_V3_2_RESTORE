@@ -13,3 +13,4 @@ Voce Alexa-like (Ava):
 
 Buon lavoro! Quando sei al PC segui docs/GUIDA_BUILD_WINDOWS_IT.txt e docs/GUIDA_RENDER_IT.txt. Se vuoi, posso anche eseguire il deploy su Render per te.
 Test automatico GitHub + Telegram OK Tue Nov  4 11:59:06 CET 2025
+# Trigger check Tue Nov  4 12:28:27 CET 2025
