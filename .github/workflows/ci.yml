@@ -26,15 +26,20 @@ jobs:
       - name: Controllo automatico del progetto
         run: |
           echo "Eseguo il controllo locale automatizzato..."
-          python3 full_project_check.py || true
+          python3 full_project_check.py > project_report.txt || true
 
-      - name: Invia notifica Telegram
+      - name: Invia notifica Telegram con report
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          echo "Invio notifica Telegram..."
-          sudo apt install -y python3-pip
+          echo "Invio report Telegram..."
           pip install requests
-          echo "Esecuzione telegram_notify.py"
-          python3 telegram_notify.py
+          REPORT=$(cat project_report.txt)
+          python3 - <<EOF
+import os, requests
+token = os.environ["TELEGRAM_TOKEN"]
+chat = os.environ["TELEGRAM_CHAT_ID"]
+msg = f"📋 *Risultati controllo automatico GitHub*\n\n{'''$REPORT'''}"
+requests.post(f"https://api.telegram.org/bot{token}/sendMessage", data={"chat_id": chat, "text": msg, "parse_mode": "Markdown"})
+EOF
