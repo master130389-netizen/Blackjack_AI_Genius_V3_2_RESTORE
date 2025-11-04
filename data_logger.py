@@ -1,8 +1,12 @@
-import json, os, datetime, traceback
+import json
+import os
+import datetime
+import traceback
 from config import get_app_path
 from telegram_manager import send_telegram_message
 
 LOG_FILE = os.path.join(get_app_path("logs"), "training_log.json")
+
 
 def log_event(event_type, value=None, tc=None, edge=None, theme=None):
     """Salva un evento nel file JSON con data/ora e parametri."""

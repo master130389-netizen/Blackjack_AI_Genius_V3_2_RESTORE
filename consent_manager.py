@@ -1,4 +1,5 @@
-import os, json
+import os
+import json
 from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
@@ -9,9 +10,11 @@ from config import get_app_path
 
 CONSENT_FILE_NAME = "consent.json"
 
+
 def _consent_path():
     folder = get_app_path("logs")
     return os.path.join(folder, CONSENT_FILE_NAME)
+
 
 def get_consent_state():
     try:
@@ -24,6 +27,7 @@ def get_consent_state():
         pass
     return False, {}
 
+
 def save_consent(granted):
     try:
         data = {"granted": granted}
@@ -34,9 +38,13 @@ def save_consent(granted):
     except Exception as e:
         print("Errore salvataggio consenso:", e)
 
+
 def show_consent_popup(callback):
     layout = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(15))
-    lbl = Label(text="L’app può raccogliere dati tecnici anonimi per migliorare l’intelligenza artificiale.\n\nVuoi consentire il trattamento dei dati?", halign="center", valign="middle")
+    lbl = Label(
+        text="L’app può raccogliere dati tecnici anonimi per migliorare l’intelligenza artificiale.\n\nVuoi consentire il trattamento dei dati?",
+        halign="center",
+        valign="middle")
     layout.add_widget(lbl)
     btns = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(10))
     deny = Button(text="Non consento", background_color=(0.7, 0, 0, 1))
@@ -49,6 +57,7 @@ def show_consent_popup(callback):
     deny.bind(on_release=lambda *_: (_handle_response(False, popup, callback)))
     allow.bind(on_release=lambda *_: (_handle_response(True, popup, callback)))
     popup.open()
+
 
 def _handle_response(granted, popup, callback):
     save_consent(granted)

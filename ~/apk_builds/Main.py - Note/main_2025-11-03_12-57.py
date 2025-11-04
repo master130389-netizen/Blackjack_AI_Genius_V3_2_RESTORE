@@ -1,9 +1,4 @@
-import os
-import random
-import traceback
-import datetime
-import sys
-
+import os, random, traceback, datetime, sys
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -17,49 +12,29 @@ from kivy.graphics import Color, Rectangle, Line
 from kivy.properties import ListProperty
 from kivy.clock import Clock
 
-# === DATA LOGGER ===
+# === DATA LOGGER (fase 3.1) ===
 from data_logger import log_event
 
-# === BACKUP & TELEGRAM ===
+# === BACKUP & TELEGRAM (fase 3.3) ===
 from main_backup_v2 import create_backup_zip
 from telegram_manager import send_telegram_message
 
-# === EXPORTER DATI ===
-from data_exporter import build_export_bundle
-
-# === CONSENSO PRIVACY ===
-from consent_manager import get_consent_state, show_consent_popup
-
-# === CONFIG PATHS ===
-from config import get_app_path
-
-
 # === FILE DI LOG ERRORI ===
-LOG_FILE = os.path.join(get_app_path("logs"), "error_log.txt")
-
+LOG_FILE = "error_log.txt"
 
 def log_error(err_msg: str):
     """Salva errori in un file con data e ora"""
-    try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        with open(LOG_FILE, "a", encoding="utf-8") as f:
-            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            f.write(f"[{now}] {err_msg}\n")
-    except Exception:
-        print("Errore nel salvataggio error_log.txt")
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"[{now}] {err_msg}\n")
 
-
+# === GESTORE GLOBALE DEGLI ERRORI ===
 def handle_exception(exc_type, exc_value, exc_traceback):
-    """Gestore globale degli errori"""
-    error_details = "".join(
-        traceback.format_exception(exc_type, exc_value, exc_traceback)
-    )
+    error_details = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
     log_error(error_details)
     print("Errore gestito, controlla il file error_log.txt")
 
-
 sys.excepthook = handle_exception
-
 
 # === TEMI ===
 THEME_DARK = {
@@ -80,10 +55,10 @@ THEME_LIGHT = {
     "close_btn": (1, 0, 0, 1),
 }
 
-THEME_FILE = os.path.join(get_app_path("logs"), "theme_config.txt")
-
+THEME_FILE = "theme_config.txt"
 
 def load_theme():
+    """Carica il tema salvato nel file di configurazione"""
     try:
         if os.path.exists(THEME_FILE):
             with open(THEME_FILE, "r", encoding="utf-8") as f:
@@ -93,16 +68,13 @@ def load_theme():
         pass
     return THEME_DARK
 
-
 def save_theme(is_light: bool):
-    os.makedirs(os.path.dirname(THEME_FILE), exist_ok=True)
+    """Salva il tema scelto (light/dark)"""
     with open(THEME_FILE, "w", encoding="utf-8") as f:
         f.write("light" if is_light else "dark")
 
-
 CURRENT_THEME = load_theme()
 Window.clearcolor = CURRENT_THEME["bg"]
-
 
 # === BOXLAYOUT CON SFONDO ===
 class ColoredBoxLayout(BoxLayout):
@@ -113,11 +85,7 @@ class ColoredBoxLayout(BoxLayout):
         with self.canvas.before:
             self._bg_color_instr = Color(rgba=self.background_color)
             self._bg_rect = Rectangle(size=self.size, pos=self.pos)
-        self.bind(
-            size=self._update_bg,
-            pos=self._update_bg,
-            background_color=self._update_bg_color,
-        )
+        self.bind(size=self._update_bg, pos=self._update_bg, background_color=self._update_bg_color)
 
     def _update_bg(self, *args):
         self._bg_rect.size = self.size
@@ -126,8 +94,7 @@ class ColoredBoxLayout(BoxLayout):
     def _update_bg_color(self, *args):
         self._bg_color_instr.rgba = self.background_color
 
-
-# === PULSANTE MENU ===
+# === PULSANTI CON ANIMAZIONE ===
 class MenuButton(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -149,10 +116,7 @@ class MenuButton(Button):
 
     def animate_color(self, new_color, duration=0.15):
         Animation.cancel_all(self)
-        Animation(
-            background_color=new_color,
-            duration=duration,
-            transition="out_quad").start(self)
+        Animation(background_color=new_color, duration=duration, transition='out_quad').start(self)
 
     def on_press(self):
         self.animate_color(CURRENT_THEME["btn_press"])
@@ -161,8 +125,7 @@ class MenuButton(Button):
         self.animate_color(CURRENT_THEME["btn"])
         return super().on_release()
 
-
-# === X ROSSA ===
+# === PULSANTE X ROSSA ===
 class CloseButton(Widget):
     def __init__(self, on_close, **kwargs):
         super().__init__(**kwargs)
@@ -192,7 +155,6 @@ class CloseButton(Widget):
             return True
         return super().on_touch_down(touch)
 
-
 # === SCHERMATA PRINCIPALE ===
 class MainScreen(Screen):
     def __init__(self, **kwargs):
@@ -201,48 +163,40 @@ class MainScreen(Screen):
         self.all_buttons = []
 
         pad = dp(Window.width * 0.04)
-        self.layout = BoxLayout(
-            orientation="vertical",
-            padding=pad,
-            spacing=dp(10))
+        self.layout = BoxLayout(orientation='vertical', padding=pad, spacing=dp(10))
         with self.layout.canvas.before:
             self._root_bg_color = Color(rgba=CURRENT_THEME["bg"])
-            self.bg_rect = Rectangle(
-                size=self.layout.size, pos=self.layout.pos)
+            self.bg_rect = Rectangle(size=self.layout.size, pos=self.layout.pos)
         self.layout.bind(size=self._update_bg, pos=self._update_bg)
 
-        header = BoxLayout(
-            orientation="horizontal",
-            size_hint_y=None,
-            height=dp(60),
-            spacing=dp(10))
-        left_box = BoxLayout(size_hint_x=None, width=dp(80))
+        # HEADER
+        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(60), spacing=dp(10))
+        left_box = BoxLayout(orientation='horizontal', size_hint_x=None, width=dp(80))
         self.menu_btn = MenuButton(text="Menu")
         self.menu_btn.bind(on_release=lambda *_: self.toggle_menu())
         left_box.add_widget(self.menu_btn)
         header.add_widget(left_box)
 
-        center_box = BoxLayout()
+        center_box = BoxLayout(orientation='horizontal')
         self.status_lbl = Label(
             text="Stato: pronto",
             color=(0, 1, 0, 1),
             font_size="18sp",
             halign="center",
             valign="middle",
-            bold=True,
+            bold=True
         )
-        self.status_lbl.bind(
-            size=lambda obj, val: setattr(
-                obj, "text_size", val))
+        self.status_lbl.bind(size=lambda obj, val: setattr(obj, "text_size", val))
         center_box.add_widget(self.status_lbl)
         header.add_widget(center_box)
         header.add_widget(Widget(size_hint_x=None, width=dp(80)))
         self.layout.add_widget(header)
 
+        # PULSANTI PRINCIPALI
         actions = [
             ("Consiglia mossa", self.consiglia_mossa),
             ("Consiglia puntata", self.consiglia_puntata),
-            ("Reset mano", self.reset_mano),
+            ("Reset mano", self.reset_mano)
         ]
         for text, func in actions:
             btn = MenuButton(text=text)
@@ -250,33 +204,31 @@ class MainScreen(Screen):
             self.layout.add_widget(btn)
             self.all_buttons.append(btn)
 
+        # OUTPUT
         self.output_lbl = Label(
             text="",
             color=CURRENT_THEME["fg"],
             font_size="16sp",
             halign="center",
             valign="middle",
-            bold=True,
+            bold=True
         )
-        self.output_lbl.bind(
-            size=lambda obj, val: setattr(
-                obj, "text_size", val))
+        self.output_lbl.bind(size=lambda obj, val: setattr(obj, "text_size", val))
         self.layout.add_widget(self.output_lbl)
         self.add_widget(self.layout)
 
+        # MENU LATERALE
         self.menu_layout = ColoredBoxLayout(
-            orientation="vertical",
+            orientation='vertical',
             size_hint=(None, 1),
             width=dp(250),
-            pos_hint={"x": -1, "y": 0},
+            pos_hint={'x': -1, 'y': 0},
             padding=dp(10),
             spacing=dp(8),
-            background_color=CURRENT_THEME["menu_bg"],
+            background_color=CURRENT_THEME["menu_bg"]
         )
-        top_bar = BoxLayout(
-            orientation="horizontal",
-            size_hint_y=None,
-            height=dp(40))
+
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(40))
         top_bar.add_widget(Widget())
         close_btn = CloseButton(on_close=self.toggle_menu)
         top_bar.add_widget(close_btn)
@@ -287,6 +239,7 @@ class MainScreen(Screen):
             self.menu_layout.add_widget(b)
             self.all_buttons.append(b)
 
+        # === NUOVO PULSANTE EXPORT DATA (corretto) ===
         self.export_btn = MenuButton(text="Export Data")
         self.export_btn.bind(on_release=self.export_data)
         self.menu_layout.add_widget(self.export_btn)
@@ -296,69 +249,46 @@ class MainScreen(Screen):
         theme_btn.bind(on_release=self.toggle_theme)
         self.menu_layout.add_widget(theme_btn)
         self.all_buttons.append(theme_btn)
+
         self.add_widget(self.menu_layout)
 
-        Clock.schedule_once(lambda dt: self.check_consent(), 0.5)
-
-    def check_consent(self):
-        granted, _ = get_consent_state()
-        if not granted:
-            show_consent_popup(self.after_consent)
-        else:
-            log_event(
-                "consent_already_granted",
-                "yes",
-                None,
-                None,
-                CURRENT_THEME)
-
-    def after_consent(self, granted):
-        msg = "✅ Consenso dati fornito" if granted else "❌ Consenso negato"
-        send_telegram_message(msg)
-        log_event("user_consent", granted, None, None, CURRENT_THEME)
-
+    # === FUNZIONE EXPORT CORRETTA ===
     def export_data(self, instance):
         try:
             instance.text = "📦 Esportazione..."
             instance.disabled = True
             create_backup_zip()
-            bundle_path = build_export_bundle()
-            msg = f"✅ Export completato!\nFile: {os.path.basename(bundle_path)}"
-            send_telegram_message(msg)
+            send_telegram_message("✅ Backup esportato con successo!")
             log_event("export_data", "success", None, None, CURRENT_THEME)
             instance.text = "✅ Esportato!"
         except Exception as e:
-            log_error(traceback.format_exc())
             send_telegram_message(f"❌ Errore export: {e}")
+            log_error(traceback.format_exc())
             instance.text = "❌ Errore!"
         finally:
-            Clock.schedule_once(
-                lambda dt: self._reset_export_button(instance), 2)
+            # Ripristino dopo 2 secondi
+            Clock.schedule_once(lambda dt: self._reset_export_button(instance), 2)
 
     def _reset_export_button(self, instance):
         instance.text = "Export Data"
         instance.disabled = False
         instance.state = "normal"
 
+    # === AGGIORNA SFONDO ===
     def _update_bg(self, *args):
         self.bg_rect.size = self.layout.size
         self.bg_rect.pos = self.layout.pos
 
+    # === CAMBIO TEMA ===
     def toggle_theme(self, *args):
         global CURRENT_THEME
-        going_to_light = CURRENT_THEME is THEME_DARK
+        going_to_light = (CURRENT_THEME is THEME_DARK)
         CURRENT_THEME = THEME_LIGHT if going_to_light else THEME_DARK
         save_theme(CURRENT_THEME is THEME_LIGHT)
         Window.clearcolor = CURRENT_THEME["bg"]
         self._root_bg_color.rgba = CURRENT_THEME["bg"]
         self.refresh_theme()
-        log_event(
-            "cambia_tema",
-            "Light" if going_to_light else "Dark",
-            None,
-            None,
-            CURRENT_THEME,
-        )
+        log_event("cambia_tema", "Light" if going_to_light else "Dark", None, None, CURRENT_THEME)
 
     def refresh_theme(self):
         for btn in self.all_buttons:
@@ -368,6 +298,7 @@ class MainScreen(Screen):
         self.menu_layout.background_color = CURRENT_THEME["menu_bg"]
         self.status_lbl.color = (0, 1, 0, 1)
 
+    # === FUNZIONI DI GIOCO ===
     def consiglia_mossa(self):
         try:
             mosse = ["HIT", "STAND", "DOUBLE", "SPLIT"]
@@ -386,13 +317,7 @@ class MainScreen(Screen):
     def consiglia_puntata(self):
         try:
             edge = round(random.uniform(-5, 5), 1)
-            bet = (
-                "x2 base bet"
-                if edge > 1
-                else "½ base bet"
-                if edge < -1
-                else "base bet"
-            )
+            bet = "x2 base bet" if edge > 1 else "½ base bet" if edge < -1 else "base bet"
             self.output_lbl.text = f"Consiglio puntata: {bet} (edge {edge}%)"
             self.status_lbl.text = "Stato: pronto"
             self.status_lbl.color = (0, 1, 0, 1)
@@ -412,24 +337,21 @@ class MainScreen(Screen):
             self.status_lbl.text = "Errore: reset"
             self.status_lbl.color = (1, 0, 0, 1)
 
+    # === MENU LATERALE ===
     def toggle_menu(self):
-        Animation(
-            pos_hint={"x": 0 if not self.menu_open else -1, "y": 0},
-            duration=0.3,
-        ).start(self.menu_layout)
+        Animation(pos_hint={'x': 0 if not self.menu_open else -1, 'y': 0}, duration=0.3).start(self.menu_layout)
         self.menu_open = not self.menu_open
 
-
+# === SCHERMATA ROOT ===
 class RootUI(ScreenManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.add_widget(MainScreen(name="main"))
 
-
+# === APP ===
 class BlackjackApp(App):
     def build(self):
         return RootUI()
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     BlackjackApp().run()

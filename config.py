@@ -2,6 +2,8 @@ import os
 import platform
 
 # === FUNZIONE PERCORSO CROSS-PLATFORM (PC / ANDROID) ===
+
+
 def get_app_path(subfolder=""):
     """
     Restituisce il percorso base per salvataggi (PC o Android)
@@ -9,19 +11,24 @@ def get_app_path(subfolder=""):
     base = os.path.expanduser("~")
 
     # Percorso simulato Android (per test su PC)
-    android_path = os.path.join(base, "projects/Blackjack_AI_Genius_V3_2_RESTORE/android_storage/Download/BlackjackAI")
+    android_path = os.path.join(
+        base,
+        "projects/Blackjack_AI_Genius_V3_2_RESTORE/android_storage/Download/BlackjackAI")
 
-    # Su Android reale, Buildozer sostituirà con /storage/emulated/0/Download/BlackjackAI
+    # Su Android reale, Buildozer sostituirà con
+    # /storage/emulated/0/Download/BlackjackAI
     if "ANDROID_STORAGE" in os.environ or "ANDROID_ARGUMENT" in os.environ:
         android_path = "/storage/emulated/0/Download/BlackjackAI"
 
-    final_path = os.path.join(android_path, subfolder) if subfolder else android_path
+    final_path = os.path.join(android_path,
+                              subfolder) if subfolder else android_path
     os.makedirs(final_path, exist_ok=True)
     return final_path
 
 
 # === CARTELLE E LOG ===
-PROJECT_ROOT = os.path.expanduser("~/projects/Blackjack_AI_Genius_V3_2_RESTORE")
+PROJECT_ROOT = os.path.expanduser(
+    "~/projects/Blackjack_AI_Genius_V3_2_RESTORE")
 LOG_FOLDER = os.path.join(PROJECT_ROOT, "logs")
 os.makedirs(LOG_FOLDER, exist_ok=True)
 

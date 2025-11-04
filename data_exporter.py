@@ -1,4 +1,10 @@
-import os, json, csv, io, zipfile, datetime, traceback
+import os
+import json
+import csv
+import io
+import zipfile
+import datetime
+import traceback
 from config import (
     LOG_FOLDER, BACKUP_FOLDER, EXPORT_INCLUDE_CSV,
     EXPORT_FILENAME_PREFIX, TELEGRAM_NOTIFY_EXPORT,
@@ -7,6 +13,7 @@ from config import (
 from telegram_manager import send_telegram_message
 
 TRAINING_JSON = os.path.join(LOG_FOLDER, "training_log.json")
+
 
 def _read_json_safely(path: str):
     if not os.path.exists(path):
@@ -17,12 +24,14 @@ def _read_json_safely(path: str):
     except Exception:
         return []
 
+
 def _anonymize(records):
     # Placeholder: al momento non inseriamo dati personali;
     # qui potremmo offuscare ID/username in fasi future.
     if not ANONYMIZE_USER_DATA:
         return records
     return records  # nessun campo PII oggi
+
 
 def _csv_from_records(records):
     output = io.StringIO()
@@ -39,6 +48,7 @@ def _csv_from_records(records):
             "theme": r.get("theme"),
         })
     return output.getvalue()
+
 
 def build_export_bundle():
     """
@@ -62,13 +72,17 @@ def build_export_bundle():
         "Blackjack AI Genius — Export dati utente (fase 3.5)\n\n"
         "- training_log.json: eventi completi\n"
         "- training_log.csv: riassunto tabellare (se presente)\n\n"
-        "Note: non includiamo dati personali. Questo export serve a te per analisi e storicizzazione.\n"
-    )
+        "Note: non includiamo dati personali. Questo export serve a te per analisi e storicizzazione.\n")
 
     try:
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             # JSON
-            zf.writestr("training_log.json", json.dumps(records, indent=2, ensure_ascii=False))
+            zf.writestr(
+                "training_log.json",
+                json.dumps(
+                    records,
+                    indent=2,
+                    ensure_ascii=False))
             # CSV opzionale
             if EXPORT_INCLUDE_CSV:
                 csv_text = _csv_from_records(records)
