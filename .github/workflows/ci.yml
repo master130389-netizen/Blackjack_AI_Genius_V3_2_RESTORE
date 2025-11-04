@@ -7,40 +7,34 @@ on:
     branches: [ main ]
 
 jobs:
-  quality_check:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Scarica il progetto
+      - name: Scarica il progetto
         uses: actions/checkout@v4
 
-      - name: ⚙️ Installa Python
+      - name: Installa Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: 🧩 Installa dipendenze
+      - name: Installa dipendenze
         run: |
           python -m pip install --upgrade pip
           pip install flake8 requests kivy
 
-      - name: 🧠 Controllo automatico del progetto
+      - name: Controllo automatico del progetto
         run: |
           echo "Eseguo il controllo locale automatizzato..."
           python3 full_project_check.py || true
 
-      - name: 🔔 Invia notifica Telegram
+      - name: Invia notifica Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          echo "Invio report Telegram..."
-          python3 telegram_notify.py || true
-
-      - name: Send Telegram Notification
-    env:
-      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-    run: |
-      echo "Invio notifica Telegram..."
-      sudo apt install -y python3-pip
-      pip install requests
-      echo "Esecuzione telegram_notify.py"
-      python3 telegram_notify.py
+          echo "Invio notifica Telegram..."
+          sudo apt install -y python3-pip
+          pip install requests
+          echo "Esecuzione telegram_notify.py"
+          python3 telegram_notify.py
