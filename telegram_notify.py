@@ -26,12 +26,16 @@ def send_telegram_message(message: str):
         return False
 
 # Verifica se il file contenente il report è presente e carica i dati
-try:
-    with open("report.txt", "r") as file:
-        report_content = file.read()
-except Exception as e:
-    print(f"❌ Errore nel leggere report.txt: {e}")
-    report_content = "Errore nel leggere il report."
+report_path = "report.txt"
+if os.path.exists(report_path):
+    try:
+        with open(report_path, "r") as file:
+            report_content = file.read()
+    except Exception as e:
+        print(f"❌ Errore nel leggere report.txt: {e}")
+        report_content = "Errore nel leggere il report."
+else:
+    report_content = "❌ Il file report.txt non esiste."
 
 # Invia il messaggio di Telegram con il contenuto del report
 send_telegram_message(report_content)
