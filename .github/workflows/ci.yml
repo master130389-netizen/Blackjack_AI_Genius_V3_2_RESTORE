@@ -40,6 +40,6 @@ jobs:
 import os, requests
 token = os.environ["TELEGRAM_TOKEN"]
 chat = os.environ["TELEGRAM_CHAT_ID"]
-msg = f"📋 *Risultati controllo automatico GitHub*\n\n{'''$REPORT'''}"
+msg = f"📋 *Risultati controllo automatico GitHub*\n\n{REPORT}"
 requests.post(f"https://api.telegram.org/bot{token}/sendMessage", data={"chat_id": chat, "text": msg, "parse_mode": "Markdown"})
 EOF
