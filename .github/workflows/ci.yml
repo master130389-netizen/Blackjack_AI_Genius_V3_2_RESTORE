@@ -33,3 +33,14 @@ jobs:
         run: |
           echo "Invio report Telegram..."
           python3 telegram_notify.py || true
+
+      - name: Send Telegram Notification
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    run: |
+      echo "Invio notifica Telegram..."
+      sudo apt install -y python3-pip
+      pip install requests
+      echo "Esecuzione telegram_notify.py"
+      python3 telegram_notify.py
