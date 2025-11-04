@@ -1,4 +1,4 @@
-# Ignora cartelle temporanee e di build
+# Ignora cartelle temporanee e di compilazione
 .buildozer/
 bin/
 venv/
@@ -12,3 +12,10 @@ pycache/
 *.apk
 *.csv
 *.json
+*.txt
+*.env
+
+# Ignora tutto dentro le build di Android
+.android/
+app/.gradle/
+app/build/
