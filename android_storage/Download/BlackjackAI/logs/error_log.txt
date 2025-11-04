@@ -3,3 +3,24 @@
     Window.clearcolor = CURRENT_THEME["bg"]
 AttributeError: 'NoneType' object has no attribute 'clearcolor'
 
+[2025-11-04 13:37:00] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 435, in <module>
+    BlackjackApp().run()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/app.py", line 956, in run
+    runTouchApp()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 574, in runTouchApp
+    EventLoop.mainloop()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 339, in mainloop
+    self.idle()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 379, in idle
+    Clock.tick()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/clock.py", line 733, in tick
+    self.post_idle(ts, self.idle())
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/clock.py", line 689, in idle
+    usleep(1000000 * sleeptime)
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/clock.py", line 965, in usleep
+    _usleep(microseconds, self._sleep_obj)
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/clock.py", line 556, in _usleep
+    _libc_usleep(int(microseconds))
+KeyboardInterrupt
+

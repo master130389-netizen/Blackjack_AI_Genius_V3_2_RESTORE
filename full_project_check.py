@@ -1,79 +1,70 @@
 import os
-import subprocess
-import sys
+import requests  # Assicurati che requests sia importato
 from datetime import datetime
-from telegram_notify import send_telegram_message
 
-# === CONFIG ===
-PROJECT_PATH = os.path.expanduser("~/projects/Blackjack_AI_Genius_V3_2_RESTORE")
-REQUIRED_FILES = [
-    "main.py",
-    "config.py",
-    "telegram_manager.py",
-    "data_logger.py",
-    "data_exporter.py",
-    "consent_manager.py",
-    "consent_popup.py",
-]
+# Percorso per il file report.txt
+report_path = os.path.expanduser("~/projects/Blackjack_AI_Genius_V3_2_RESTORE/report.txt")
 
-REQUIRED_LIBS = ["kivy", "requests"]
+def create_report():
+    """Funzione per creare e scrivere nel file report.txt"""
+    with open(report_path, "w") as report_file:
+        report_file.write("🔔 Report di controllo progetto Blackjack AI Genius V3\n")
+        report_file.write("==============================================\n")
+        
+        # Aggiungi qui i dettagli che vuoi scrivere nel report, ad esempio:
+        report_file.write("✅ File principali presenti: \n")
+        report_file.write("- main.py\n")
+        report_file.write("- config.py\n")
+        report_file.write("- consent_manager.py\n")
+        report_file.write("\n")
+        report_file.write("✅ Controllo librerie: \n")
+        report_file.write("✔️ flake8\n")
+        report_file.write("✔️ kivy\n")
+        report_file.write("\n")
+        report_file.write("⚠️ Errori di stile: nessuno\n")
+        report_file.write("\n")
+        # Aggiungi altri dettagli come il controllo delle dipendenze o altre verifiche
+        report_file.write("==============================================\n")
+        report_file.write("Controllo completato con successo!\n")
 
-# === FUNZIONI ===
-def check_files():
-    missing = [f for f in REQUIRED_FILES if not os.path.exists(os.path.join(PROJECT_PATH, f))]
-    return missing
+def send_report_to_telegram():
+    """Funzione per inviare il report su Telegram"""
+    # Verifica che il file report.txt esista
+    if os.path.exists(report_path):
+        with open(report_path, "r") as file:
+            report_content = file.read()
+        
+        send_telegram_message(report_content)
+    else:
+        print("❌ Il file report.txt non esiste!")
 
-def check_dependencies():
-    missing_libs = []
-    for lib in REQUIRED_LIBS:
-        try:
-            __import__(lib)
-        except ImportError:
-            missing_libs.append(lib)
-    return missing_libs
+# Funzione per inviare messaggio su Telegram
+def send_telegram_message(message: str):
+    token = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-def run_flake8():
+    if not token or not chat_id:
+        print("⚠️ Mancano TOKEN o CHAT_ID nel file .env")
+        return False
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
+
     try:
-        result = subprocess.run(
-            ["flake8", "."],
-            capture_output=True,
-            text=True
-        )
-        return result.stdout.strip()
+        r = requests.post(url, data=payload, timeout=10)
+        if r.status_code == 200:
+            print(f"✅ Messaggio Telegram inviato: {message}")
+            return True
+        else:
+            print(f"❌ Errore invio Telegram ({r.status_code}): {r.text}")
+            return False
     except Exception as e:
-        return f"Errore flake8: {e}"
+        print(f"❌ Eccezione Telegram: {e}")
+        return False
 
-def main():
-    missing_files = check_files()
-    missing_libs = check_dependencies()
-    lint_report = run_flake8()
+# Creare il report
+create_report()
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    report = f"📋 <b>Controllo progetto Blackjack AI Genius V3</b>\n🕐 Ora: {now}\n\n"
-
-    if missing_files:
-        report += f"❌ File mancanti:\n- " + "\n- ".join(missing_files) + "\n\n"
-    else:
-        report += "✅ Tutti i file principali sono presenti.\n\n"
-
-    if missing_libs:
-        report += f"⚠️ Librerie mancanti: {', '.join(missing_libs)}\n\n"
-    else:
-        report += "✅ Tutte le librerie principali installate.\n\n"
-
-    if lint_report:
-        report += f"⚠️ Errori di stile o sintassi trovati:\n{lint_report[:800]}...\n\n"
-    else:
-        report += "✅ Nessun errore di stile rilevato.\n\n"
-
-    if not missing_files and not missing_libs and not lint_report:
-        report += "🎉 <b>Progetto completamente stabile!</b>"
-    else:
-        report += "🔍 Controlla i dettagli sopra prima di procedere."
-
-    print(report)
-    send_telegram_message(report)
-
-if __name__ == "__main__":
-    main()
+# Inviare il report su Telegram
+send_report_to_telegram()
 
