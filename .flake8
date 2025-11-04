@@ -1,0 +1,22 @@
+[flake8]
+# evita di analizzare ambienti virtuali e artefatti di build
+exclude =
+    .git,
+    pycache,
+    .venv,
+    venv,
+    .buildozer,
+    build,
+    dist,
+    bin,
+    android_storage,
+    app/.buildozer,
+    app/build,
+    app/.gradle
+
+# allenta un po' la lunghezza riga per schermi mobile
+max-line-length = 100
+
+# regole rumorose in contesti specifici
+extend-ignore =
+    E402  # import non in cima al file (non ci interessa nei tool/entry-point)
