@@ -12,3 +12,4 @@ Voce Alexa-like (Ava):
 - In this package we include short sample TTS WAVs as placeholders (tts_samples). To integrate a production voice, follow the guide in docs/VOICE_INTEGRATION_IT.txt.
 
 Buon lavoro! Quando sei al PC segui docs/GUIDA_BUILD_WINDOWS_IT.txt e docs/GUIDA_RENDER_IT.txt. Se vuoi, posso anche eseguire il deploy su Render per te.
+Test automatico GitHub + Telegram OK Tue Nov  4 11:59:06 CET 2025
