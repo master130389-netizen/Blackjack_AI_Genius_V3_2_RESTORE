@@ -3,11 +3,12 @@ name: Backup e Creazione APK
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   backup_and_build_apk:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout del codice
         uses: actions/checkout@v4
@@ -20,23 +21,65 @@ jobs:
       - name: Installa dipendenze
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install flake8 requests kivy
+          fi
 
-      - name: Esegui il backup dei file
+      - name: Esegui il backup dei file (ignora file che cambiano)
         run: |
-          echo "Eseguo il backup dei file..."
-          tar -czf backup_project_$(date +'%Y-%m-%d').tar.gz .  # Crea il backup
-          mv backup_project_$(date +'%Y-%m-%d').tar.gz ~/backups/  # Sposta in cartella di backup
+          mkdir -p git_backups
+          TS=$(date +'%Y-%m-%d_%H-%M-%S')
+          BACKUP="git_backups/backup_${TS}.tar.gz"
+          tar \
+            --exclude=.git \
+            --exclude=.github \
+            --exclude=git_backups \
+            --exclude=pycache \
+            --exclude=.venv \
+            --exclude=venv \
+            --exclude=android_storage/Download/BlackjackAI/logs/* \
+            --warning=no-file-changed \
+            -czf "$BACKUP" .
+          echo "CREATED=$BACKUP" >> "$GITHUB_ENV"
 
-      - name: Creazione dell'APK con Buildozer
+      - name: Carica backup come artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-backup-${{ github.run_number }}
+          path: ${{ env.CREATED }}
+
+      - name: Genera report progetto
         run: |
-          echo "Creazione APK..."
-          buildozer -v android debug  # Compila l'APK
+          python3 full_project_check.py || true
+          # Se esiste report.txt lo esportiamo per il passaggio dopo
+          if [ -f report.txt ]; then
+            echo "REPORT_EXISTS=true" >> "$GITHUB_ENV"
+          else
+            echo "REPORT_EXISTS=false" >> "$GITHUB_ENV"
+          fi
 
-      - name: Invia notifiche Telegram
+      - name: Invia notifica Telegram
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          echo "Invio notifica Telegram..."
-          python3 telegram_notify.py  # Invia notifica che tutto è stato completato
+          python3 - <<'PY'
+          import os, requests, pathlib
+          token=os.environ['TELEGRAM_TOKEN']
+          chat=os.environ['TELEGRAM_CHAT_ID']
+          backup=os.environ.get('CREATED','(sconosciuto)')
+          txt = f"✅ Backup creato.\nFile: {backup}"
+          # Se report.txt esiste lo includo nel messaggio (prime 25 righe)
+          if os.environ.get('REPORT_EXISTS') == 'true' and pathlib.Path('report.txt').exists():
+            try:
+              head = ''.join(pathlib.Path('report.txt').read_text(encoding='utf-8').splitlines(True)[:25])
+              txt += "\n\n📋 Report (inizio):\n" + head
+            except Exception:
+              pass
+          requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                        data={"chat_id": chat, "text": txt})
+          PY
+
+      # (Fase build APK: la aggiungiamo dopo aver chiuso backup+report)
