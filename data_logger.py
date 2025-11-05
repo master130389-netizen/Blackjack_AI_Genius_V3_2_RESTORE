@@ -1,14 +1,45 @@
-import json
+# -*- coding: utf-8 -*-
+"""
+data_logger.py
+Sistema di logging dati e eventi per Blackjack AI Genius V3 (versione PC).
+"""
+
 import os
+import json
 from datetime import datetime
 from telegram_manager import notify_success, notify_error
 
-LOG_FILE = os.path.join("logs", "data_log.json")
-os.makedirs("logs", exist_ok=True)
+# === Percorsi ===
+BASE_DIR = os.getcwd()
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
 
+LOG_FILE = os.path.join(LOG_DIR, "data_log.json")
 
-def log_event(event_type, message, extra=None):
-    """Registra un evento nel file JSON e invia notifica Telegram in modo sicuro."""
+# === Funzioni di supporto ===
+def _load_logs():
+    """Carica i log esistenti o restituisce una lista vuota."""
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def _save_logs(logs):
+    """Salva i log in formato JSON."""
+    try:
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            json.dump(logs, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"[Log Error] Errore nel salvataggio JSON: {e}")
+
+# === Logger principale ===
+def log_event(event_type: str, message: str, extra=None):
+    """
+    Registra un evento nel file JSON e invia eventuale notifica Telegram.
+    """
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "type": event_type,
@@ -16,26 +47,23 @@ def log_event(event_type, message, extra=None):
         "extra": extra or {}
     }
 
+    logs = _load_logs()
+    logs.append(data)
+    _save_logs(logs)
+
+    # Log su terminale
+    print(f"[LOG] {event_type.upper()} → {message}")
+
+    # Notifiche Telegram automatiche
     try:
-        if os.path.exists(LOG_FILE):
-            with open(LOG_FILE, "r", encoding="utf-8") as f:
-                logs = json.load(f)
-        else:
-            logs = []
-
-        logs.append(data)
-
-        with open(LOG_FILE, "w", encoding="utf-8") as f:
-            json.dump(logs, f, indent=2, ensure_ascii=False)
-
-        print(f"📝 Log registrato: {event_type} - {message}")
-
-        # Notifica Telegram
-        if event_type.lower() in ["error", "crash", "exception"]:
-            notify_error(f"⚠️ {message}")
-        elif event_type.lower() in ["export", "success"]:
-            notify_success(f"✅ {message}")
-
+        if event_type.lower() in ("error", "exception", "crash"):
+            notify_error(f"Errore registrato: {message}")
+        elif event_type.lower() in ("export", "success"):
+            notify_success(f"Operazione completata: {message}")
     except Exception as e:
-        print(f"❌ Errore nel log_event: {e}")
-        notify_error(f"Errore durante la registrazione log: {e}")
+        print(f"[Telegram Warning] Invio fallito: {e}")
+
+# === Shortcut dedicato agli errori ===
+def log_error(message: str, extra=None):
+    """Shortcut per errori critici."""
+    log_event("error", message, extra)

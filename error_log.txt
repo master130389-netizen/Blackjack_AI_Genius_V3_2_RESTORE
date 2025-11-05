@@ -23,3 +23,78 @@
     os.mkdir(data_dir)
 FileNotFoundError: [Errno 2] No such file or directory: '/home/mario/.config/blackjack'
 
+[2025-11-05 17:00:04] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 347, in <module>
+    BlackjackApp().run()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/app.py", line 956, in run
+    runTouchApp()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 574, in runTouchApp
+    EventLoop.mainloop()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 339, in mainloop
+    self.idle()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 383, in idle
+    self.dispatch_input()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 334, in dispatch_input
+    post_dispatch_input(*pop(0))
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 302, in post_dispatch_input
+    wid.dispatch('on_touch_up', me)
+  File "kivy/_event.pyx", line 731, in kivy._event.EventDispatcher.dispatch
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/uix/behaviors/button.py", line 179, in on_touch_up
+    self.dispatch('on_release')
+  File "kivy/_event.pyx", line 727, in kivy._event.EventDispatcher.dispatch
+  File "kivy/_event.pyx", line 1307, in kivy._event.EventObservers.dispatch
+  File "kivy/_event.pyx", line 1231, in kivy._event.EventObservers._dispatch
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 261, in toggle_theme
+    log_event("cambia_tema", "Light" if going_to_light else "Dark", None, None, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
+[2025-11-05 17:00:44] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 281, in consiglia_mossa
+    log_event("consiglia_mossa", scelta, tc, edge, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
+[2025-11-05 17:00:44] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 296, in consiglia_puntata
+    log_event("consiglia_puntata", bet, 0, edge, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
+[2025-11-05 17:00:48] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 281, in consiglia_mossa
+    log_event("consiglia_mossa", scelta, tc, edge, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
+[2025-11-05 17:00:48] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 296, in consiglia_puntata
+    log_event("consiglia_puntata", bet, 0, edge, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
+[2025-11-05 17:00:50] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 320, in export_data
+    perform_backup(app)
+NameError: name 'perform_backup' is not defined
+
+[2025-11-05 17:00:56] Traceback (most recent call last):
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 347, in <module>
+    BlackjackApp().run()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/app.py", line 956, in run
+    runTouchApp()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 574, in runTouchApp
+    EventLoop.mainloop()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 339, in mainloop
+    self.idle()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 383, in idle
+    self.dispatch_input()
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 334, in dispatch_input
+    post_dispatch_input(*pop(0))
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/base.py", line 302, in post_dispatch_input
+    wid.dispatch('on_touch_up', me)
+  File "kivy/_event.pyx", line 731, in kivy._event.EventDispatcher.dispatch
+  File "/home/mario/.local/lib/python3.10/site-packages/kivy/uix/behaviors/button.py", line 179, in on_touch_up
+    self.dispatch('on_release')
+  File "kivy/_event.pyx", line 727, in kivy._event.EventDispatcher.dispatch
+  File "kivy/_event.pyx", line 1307, in kivy._event.EventObservers.dispatch
+  File "kivy/_event.pyx", line 1231, in kivy._event.EventObservers._dispatch
+  File "/home/mario/projects/Blackjack_AI_Genius_V3_2_RESTORE/main.py", line 261, in toggle_theme
+    log_event("cambia_tema", "Light" if going_to_light else "Dark", None, None, CURRENT_THEME)
+TypeError: log_event() takes from 2 to 3 positional arguments but 5 were given
+
