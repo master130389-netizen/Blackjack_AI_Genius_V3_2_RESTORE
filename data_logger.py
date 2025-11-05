@@ -1,39 +1,41 @@
 import json
 import os
-import datetime
-import traceback
-from config import get_app_path
-from telegram_manager import send_telegram_message
+from datetime import datetime
+from telegram_manager import notify_success, notify_error
 
-LOG_FILE = os.path.join(get_app_path("logs"), "training_log.json")
+LOG_FILE = os.path.join("logs", "data_log.json")
+os.makedirs("logs", exist_ok=True)
 
 
-def log_event(event_type, value=None, tc=None, edge=None, theme=None):
-    """Salva un evento nel file JSON con data/ora e parametri."""
+def log_event(event_type, message, extra=None):
+    """Registra un evento nel file JSON e invia notifica Telegram in modo sicuro."""
+    data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "type": event_type,
+        "message": message,
+        "extra": extra or {}
+    }
+
     try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        data = {
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "event": event_type,
-            "value": value,
-            "tc": tc,
-            "edge": edge,
-            "theme": str(theme)
-        }
-        logs = []
         if os.path.exists(LOG_FILE):
             with open(LOG_FILE, "r", encoding="utf-8") as f:
-                try:
-                    logs = json.load(f)
-                except Exception:
-                    logs = []
+                logs = json.load(f)
+        else:
+            logs = []
+
         logs.append(data)
+
         with open(LOG_FILE, "w", encoding="utf-8") as f:
             json.dump(logs, f, indent=2, ensure_ascii=False)
-    except Exception:
-        error_text = f"Errore nel salvataggio log_event: {traceback.format_exc()}"
-        print(error_text)
-        try:
-            send_telegram_message(error_text)
-        except Exception:
-            pass
+
+        print(f"📝 Log registrato: {event_type} - {message}")
+
+        # Notifica Telegram
+        if event_type.lower() in ["error", "crash", "exception"]:
+            notify_error(f"⚠️ {message}")
+        elif event_type.lower() in ["export", "success"]:
+            notify_success(f"✅ {message}")
+
+    except Exception as e:
+        print(f"❌ Errore nel log_event: {e}")
+        notify_error(f"Errore durante la registrazione log: {e}")
